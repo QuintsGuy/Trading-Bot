@@ -1,6 +1,7 @@
 import time
 import os
 import logging
+from dotenv import load_dotenv
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
@@ -23,9 +24,14 @@ logging.basicConfig(
     ]
 )
 
+load_dotenv()
+
 # ✅ Environment variables for credentials
 DISCORD_EMAIL = os.getenv("DISCORD_EMAIL")
 DISCORD_PASSWORD = os.getenv("DISCORD_PASSWORD")
+
+if not DISCORD_EMAIL or not DISCORD_PASSWORD:
+    raise ValueError("⚠️ Missing Discord credentials! Ensure DISCORD_EMAIL and DISCORD_PASSWORD are set.")
 
 class DiscordWebDriver:
     _instance = None

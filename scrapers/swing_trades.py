@@ -101,10 +101,15 @@ def parse_trade_message(message):
 
     return trade_data
 
-def start_swing_scraper():
+def start_swing_scraper(channel_url, tab_handles):
+    if channel_url not in tab_handles:
+        logging.error(f"🚨 [SCRAPER] Swing Trades - No tab handle found for {channel_url}")
+        return
+    
     start_live_monitoring(
         scraper_name="Swing Trades",
-        channels=DISCORD_CHANNEL,
+        channel_url=channel_url,
+        tab_handle=tab_handles[channel_url],
         parse_trade_message=parse_trade_message,
         handle_trade_entry=handle_trade_entry,
         handle_trade_exit=handle_trade_exit

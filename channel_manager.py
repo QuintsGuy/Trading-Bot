@@ -4,13 +4,13 @@ import logging
 import threading
 import datetime as dt
 from discord_session import DiscordWebDriver, login_discord
-from scrapers.daytrade_scalps import start_daytrade_scraper
-from scrapers.midas_account import start_midas_scraper
-from scrapers.small_account_challenge import start_challenge_scraper
-from scrapers.swing_trades import start_swing_scraper
-from scrapers.longterm_leaps import start_longterm_scraper
-from scrapers.highrisk import start_highrisk_scraper
-from scrapers.golden_sweeps import start_sweeps_scraper
+from Scrapers.daytrade_scalps import start_daytrade_scraper
+from Scrapers.midas_account import start_midas_scraper
+from Scrapers.small_account_challenge import start_challenge_scraper
+from Scrapers.swing_trades import start_swing_scraper
+from Scrapers.longterm_leaps import start_longterm_scraper
+from Scrapers.highrisk import start_highrisk_scraper
+from Scrapers.golden_sweeps import start_sweeps_scraper
 
 # Configure logging with daily log files and console output
 log_filename = os.path.join("logs", dt.datetime.now().strftime("trading_bot_%Y-%m-%d.log"))
@@ -54,14 +54,14 @@ if __name__ == "__main__":
         "https://discord.com/channels/525113944239767562/1287928439663230976",
     ]
 
-    # ✅ Log in once before starting all scrapers
+    # ✅ Log in once before starting all Scrapers
     driver, tab_handles = initialize_discord_session(DISCORD_CHANNELS)
-    logging.info("🚀 [MANAGER] Launching Discord scrapers on separate channels...")
+    logging.info("🚀 [MANAGER] Launching Discord Scrapers on separate channels...")
 
     def run_scraper(scraper, channel_url):
         scraper(channel_url, tab_handles)
 
-    scrapers = [
+    Scrapers = [
         threading.Thread(target=run_scraper, args=(start_daytrade_scraper, DISCORD_CHANNELS[0]), daemon=True),
         threading.Thread(target=run_scraper, args=(start_midas_scraper, DISCORD_CHANNELS[1]), daemon=True),
         threading.Thread(target=run_scraper, args=(start_challenge_scraper, DISCORD_CHANNELS[2]), daemon=True),
@@ -71,11 +71,11 @@ if __name__ == "__main__":
         threading.Thread(target=run_scraper, args=(start_sweeps_scraper, DISCORD_CHANNELS[6]), daemon=True),
     ]
 
-    for scraper in scrapers:
+    for scraper in Scrapers:
         scraper.start()
 
     try:
         while True:
             pass
     except KeyboardInterrupt:
-        logging.info("🛑 [MANAGER] All scrapers have stopped.")
+        logging.info("🛑 [MANAGER] All Scrapers have stopped.")

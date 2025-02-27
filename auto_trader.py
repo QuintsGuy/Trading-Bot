@@ -1,8 +1,6 @@
 import logging
 import datetime as dt
-import time
 import os
-import threading
 from alpaca_client import api
 from account_data import get_position_data
 
