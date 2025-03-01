@@ -1,4 +1,4 @@
-from alpaca_client import api
+from src.trading.alpaca_client import api
 import os
 import logging
 import datetime as dt

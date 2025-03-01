@@ -1,5 +1,5 @@
-from execute_trade import handle_trade_exit, handle_trade_entry, get_current_week_friday
-from live_monitoring import start_live_monitoring
+from src.trading.execute_trade import handle_trade_exit, handle_trade_entry, get_current_week_friday
+from src.trading.live_monitoring import start_live_monitoring
 import datetime as dt
 import logging
 import re

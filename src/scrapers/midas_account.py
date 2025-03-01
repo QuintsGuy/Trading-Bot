@@ -1,5 +1,5 @@
-from execute_trade import handle_trade_exit, handle_trade_entry, get_current_week_friday
-from live_monitoring import start_live_monitoring
+from src.trading.execute_trade import handle_trade_exit, handle_trade_entry, get_current_week_friday
+from src.trading.live_monitoring import start_live_monitoring
 import datetime as dt
 import logging
 import re
@@ -16,7 +16,7 @@ logging.basicConfig(
     ]
 )
 
-DISCORD_CHANNEL = "https://discord.com/channels/525113944239767562/776223897019219989"
+DISCORD_CHANNEL = "https://discord.com/channels/525113944239767562/816696269862469652"
 
 def parse_trade_message(message):
     trade_data = []
@@ -101,13 +101,13 @@ def parse_trade_message(message):
 
     return trade_data
 
-def start_longterm_scraper(channel_url, tab_handles):
+def start_midas_scraper(channel_url, tab_handles):
     if channel_url not in tab_handles:
-        logging.error(f"🚨 [SCRAPER] Longterm Leaps - No tab handle found for {channel_url}")
+        logging.error(f"🚨 [SCRAPER] Midas Account - No tab handle found for {channel_url}")
         return
     
     start_live_monitoring(
-        scraper_name="Longterm Leaps",
+        scraper_name="Midas Small Account",
         channel_url=channel_url,
         tab_handle=tab_handles[channel_url],
         parse_trade_message=parse_trade_message,

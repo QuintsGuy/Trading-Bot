@@ -1,5 +1,5 @@
-from execute_trade import handle_trade_exit, handle_trade_entry, get_current_week_friday
-from live_monitoring import start_live_monitoring
+from src.trading.execute_trade import handle_trade_exit, handle_trade_entry, get_current_week_friday
+from src.trading.live_monitoring import start_live_monitoring
 import datetime as dt
 import logging
 import re
@@ -16,7 +16,7 @@ logging.basicConfig(
     ]
 )
 
-DISCORD_CHANNEL = "https://discord.com/channels/525113944239767562/1287928439663230976"
+DISCORD_CHANNEL = "https://discord.com/channels/525113944239767562/1144369893760831489"
 
 def parse_trade_message(message):
     trade_data = []
@@ -101,13 +101,13 @@ def parse_trade_message(message):
 
     return trade_data
 
-def start_sweeps_scraper(channel_url, tab_handles):
+def start_challenge_scraper(channel_url, tab_handles):
     if channel_url not in tab_handles:
-        logging.error(f"🚨 [SCRAPER] Golden Sweeps - No tab handle found for {channel_url}")
+        logging.error(f"🚨 [SCRAPER] Small Account Challenge - No tab handle found for {channel_url}")
         return
     
     start_live_monitoring(
-        scraper_name="Golden Sweeps",
+        scraper_name="Small Account Challenge",
         channel_url=channel_url,
         tab_handle=tab_handles[channel_url],
         parse_trade_message=parse_trade_message,

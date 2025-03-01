@@ -1,7 +1,6 @@
 import time
 import os
 import logging
-from dotenv import load_dotenv
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
@@ -11,27 +10,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 from fake_useragent import UserAgent
-import datetime as dt
+from config import DISCORD_EMAIL, DISCORD_PASSWORD
 
-# ✅ Configure logging
-log_filename = os.path.join("logs", dt.datetime.now().strftime("trading_bot_%Y-%m-%d.log"))
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler(log_filename, encoding="utf-8"),
-        logging.StreamHandler()
-    ]
-)
-
-load_dotenv()
-
-# ✅ Environment variables for credentials
-DISCORD_EMAIL = os.getenv("DISCORD_EMAIL")
-DISCORD_PASSWORD = os.getenv("DISCORD_PASSWORD")
-
-if not DISCORD_EMAIL or not DISCORD_PASSWORD:
-    raise ValueError("⚠️ Missing Discord credentials! Ensure DISCORD_EMAIL and DISCORD_PASSWORD are set.")
+logger = logging.getLogger(__name__)
 
 class DiscordWebDriver:
     _instance = None
@@ -55,7 +36,6 @@ class DiscordWebDriver:
         chrome_options.add_argument("--disable-dev-shm-usage")
         chrome_options.add_argument("--disable-blink-features=AutomationControlled")
         chrome_options.add_argument("--disable-gpu")
-        chrome_options.add_argument("--log-level=3")
 
         # ✅ Set a Random User-Agent
         ua = UserAgent()
@@ -73,37 +53,23 @@ class DiscordWebDriver:
             self.driver.quit()
             DiscordWebDriver._instance = None
 
-    def restart(self):
-        self.quit()
-        time.sleep(3)  # Prevent race conditions
-        DiscordWebDriver._instance = DiscordWebDriver()
-
-    def get_driver(self):
-        return self.driver
-
 def login_discord():
-    web_driver = DiscordWebDriver.get_instance().get_driver()
-    web_driver.get("https://discord.com/login")
-    time.sleep(1)
-
-    # Enter credentials (Use environment variables for security)
-    email_input = WebDriverWait(web_driver, 10).until(EC.presence_of_element_located((By.NAME, "email")))
-    email_input.send_keys(DISCORD_EMAIL)
-
-    password_input = web_driver.find_element(By.NAME, "password")
-    password_input.send_keys(DISCORD_PASSWORD)
-    password_input.send_keys(Keys.RETURN)
-
-    logging.info("✅ [MANAGER] Logged into Discord successfully!")
-    time.sleep(2)
-
-def ensure_logged_in():
-    web_driver = DiscordWebDriver.get_instance()
-
     try:
-        web_driver.get_driver().current_url  # Try accessing WebDriver
+        web_driver = DiscordWebDriver.get_instance().get_driver()
+        web_driver.get("https://discord.com/login")
+        time.sleep(1)
+
+        # Enter credentials (Use environment variables for security)
+        email_input = WebDriverWait(web_driver, 10).until(EC.presence_of_element_located((By.NAME, "email")))
+        email_input.send_keys(DISCORD_EMAIL)
+
+        password_input = web_driver.find_element(By.NAME, "password")
+        password_input.send_keys(DISCORD_PASSWORD)
+        password_input.send_keys(Keys.RETURN)
+
+        logging.info("✅ [MANAGER] Logged into Discord successfully!")
+        time.sleep(2)
+        
     except Exception as e:
-        logging.warning(f"⚠️ [MANAGER] WebDriver session lost, restarting... {e}")
-        web_driver.restart()
-        login_discord()
+        logger.error(f"❌ Discord login failed: {e}")
 

@@ -3,26 +3,17 @@ import datetime as dt
 import time
 import os
 import threading
-from alpaca_client import api
-from account_data import get_position_data
+from src.trading.alpaca_client import api
+from src.trading.account_data import get_position_data
 
-# Configure logging with daily log files and console output
-log_filename = os.path.join("logs", dt.datetime.now().strftime("trading_bot_%Y-%m-%d.log"))
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler(log_filename, encoding="utf-8"),
-        logging.StreamHandler()
-    ]
-)
+logger = logging.getLogger(__name__)
 
 def format_options_symbol(ticker, expiration, option_type, strike_price):
     try:
         current_year = dt.datetime.now().year % 100
         exp_date = dt.datetime.strptime(expiration, "%m/%d").strftime(f"{current_year}%m%d")
     except ValueError:
-        logging.error(f"⚠️ Invalid expiration format: {expiration}. Must include a day (e.g., MM/DD). Trade rejected.")
+        logger.error(f"⚠️ Invalid expiration format: {expiration}. Must include a day (e.g., MM/DD). Trade rejected.")
         return None
 
     strike_int = int(float(strike_price) * 1000)
@@ -45,11 +36,11 @@ def calculate_dynamic_position_size(limit_price, risk_percent=0.01):
         contracts_to_buy = risk_per_trade / (limit_price * 100)
         contracts_to_buy = max(1, int(contracts_to_buy))
 
-        logging.info(f"📊 [MAIN] Dynamic Sizing - Balance: ${account_balance:.2f}, Max Risk: ${risk_per_trade:.2f}, Contracts: {contracts_to_buy}")
+        logger.info(f"📊 [MAIN] Dynamic Sizing - Balance: ${account_balance:.2f}, Max Risk: ${risk_per_trade:.2f}, Contracts: {contracts_to_buy}")
         return contracts_to_buy
     
     except Exception as e:
-        logging.error(f"❌ Failed to calculate position size: {str(e)}")
+        logger.error(f"❌ Failed to calculate position size: {str(e)}")
         return 10
 
 def execute_market_buy(buy_size, position_data):
@@ -65,9 +56,9 @@ def execute_market_buy(buy_size, position_data):
 
     try:
         response = api.submit_order(**order_payload)
-        logging.info(f"✅ [THREAD] ADD: Trade Executed: BUY {buy_size} {symbol} @ {current_price}")
+        logger.info(f"✅ [THREAD] ADD: Trade Executed: BUY {buy_size} {symbol} @ {current_price}")
     except Exception as e:
-        logging.error(f"❌ [THREAD] ADD: Trade Execution Failed: {str(e)}")
+        logger.error(f"❌ [THREAD] ADD: Trade Execution Failed: {str(e)}")
 
 def execute_market_sell(trade, position_data):
     symbol = position_data["symbol"]
@@ -88,9 +79,9 @@ def execute_market_sell(trade, position_data):
 
     try:
         response = api.submit_order(**order_payload)
-        logging.info(f"✅ [THREAD] {trade['ticker']} {trade['type'].upper()} Trade Executed: SELL {sell_size} {symbol} @ {position_data['current_price']}")
+        logger.info(f"✅ [THREAD] {trade['ticker']} {trade['type'].upper()} Trade Executed: SELL {sell_size} {symbol} @ {position_data['current_price']}")
     except Exception as e:
-        logging.error(f"❌ [THREAD] {trade['ticker']} {trade['type'].upper()} Trade Execution Failed: {str(e)}")
+        logger.error(f"❌ [THREAD] {trade['ticker']} {trade['type'].upper()} Trade Execution Failed: {str(e)}")
 
 def execute_limit_buy(trade):
     ticker = trade['ticker']

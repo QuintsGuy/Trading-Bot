@@ -1,8 +1,8 @@
 import logging
 import datetime as dt
 import os
-from alpaca_client import api
-from account_data import get_position_data
+from src.trading.alpaca_client import api
+from src.trading.account_data import get_position_data
 
 # Configure logging with daily log files and console output
 log_filename = os.path.join("logs", dt.datetime.now().strftime("trading_bot_%Y-%m-%d.log"))
